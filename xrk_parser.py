@@ -5,7 +5,7 @@ from tkinter import filedialog
 from time import sleep
 
 # Load the DLL
-xrkdll = ctypes.WinDLL('./MatLabXRK-2017-64-ReleaseU.dll')
+xrkdll = ctypes.WinDLL('libs/MatLabXRK-2022-64-ReleaseU.dll')
 
 # Begin DLL function prototypes
 
@@ -41,9 +41,9 @@ xrkdll.get_racer_name.argtypes = [ctypes.c_int]
 xrkdll.get_championship_name.restype = ctypes.c_char_p
 xrkdll.get_championship_name.argtypes = [ctypes.c_int]
 
-# int get_venue_type_name(int idx)
-xrkdll.get_venue_type_name.restype = ctypes.c_char_p
-xrkdll.get_venue_type_name.argtypes = [ctypes.c_int]
+# int get_session_type_name(int idx)
+xrkdll.get_session_type_name.restype = ctypes.c_char_p
+xrkdll.get_session_type_name.argtypes = [ctypes.c_int]
 
 # int getdate_and_time(int idx)
 
@@ -164,48 +164,41 @@ class XRK():
     
     # returns a string of the vehicle name
     def vehicle_name(self):
-        return xrkdll.get_vehicle_name(self.idxf).decode('utf-8')
+        value = xrkdll.get_vehicle_name(self.idxf)
+        return value.decode('utf-8') if value else ""
     
     # returns a string of the track name   
     def track_name(self):
-        return xrkdll.get_track_name(self.idxf).decode('utf-8')
+        value = xrkdll.get_track_name(self.idxf)
+        return value.decode('utf-8') if value else ""
     
     # returns a string of the racer's name
     def racer_name(self):
-        return xrkdll.get_racer_name(self.idxf).decode('utf-8')
+        value = xrkdll.get_racer_name(self.idxf)
+        return value.decode('utf-8') if value else ""
     
     # returns a string of the championship name
     def championship_name(self):
-        return xrkdll.get_championship_name(self.idxf).decode('utf-8')
+        value = xrkdll.get_championship_name(self.idxf)
+        return value.decode('utf-8') if value else ""
     
     # returns a string of the venue type
     def session_type(self):
-        return xrkdll.get_venue_type_name(self.idxf).decode('utf-8')
+        value = xrkdll.get_session_type_name(self.idxf)
+        return value.decode('utf-8') if value else ""
     
     # returns a string of datetime
     def log_datetime(self):
-        log_sec = xrkdll.get_date_and_time(self.idxf).contents.second
-        log_min = xrkdll.get_date_and_time(self.idxf).contents.minute
-        log_hour = xrkdll.get_date_and_time(self.idxf).contents.hour
-        if log_hour == 0:
-            ampm = 'AM'
-            log_hour = 12
-        elif log_hour < 12:
-            ampm = 'AM'
-        else:
-            ampm = 'PM'
-            if log_hour > 12:
-                log_hour -= 12
-        log_day = xrkdll.get_date_and_time(self.idxf).contents.day
-        log_month = (xrkdll.get_date_and_time(self.idxf).contents.month)+1
-        log_year = (xrkdll.get_date_and_time(self.idxf).contents.year)+1900
-        return f'{log_month:02}/{log_day:02}/{log_year:04} {log_hour:02}:{log_min:02}:{log_sec:02} {ampm}'
+        return f'{self.log_date()} {self.log_time()}'
 
     # returns a string of time
     def log_time(self):
-        log_sec = xrkdll.get_date_and_time(self.idxf).contents.second
-        log_min = xrkdll.get_date_and_time(self.idxf).contents.minute
-        log_hour = xrkdll.get_date_and_time(self.idxf).contents.hour
+        log_time = xrkdll.get_date_and_time(self.idxf)
+        if not log_time or not log_time.contents:
+            return "00:00:00 AM"
+        log_sec = log_time.contents.second
+        log_min = log_time.contents.minute
+        log_hour = log_time.contents.hour
         if log_hour == 0:
             ampm = 'AM'
             log_hour = 12
@@ -219,9 +212,12 @@ class XRK():
 
     #returns a string of time
     def log_date(self):
-        log_day = xrkdll.get_date_and_time(self.idxf).contents.day
-        log_month = (xrkdll.get_date_and_time(self.idxf).contents.month)+1
-        log_year = (xrkdll.get_date_and_time(self.idxf).contents.year)+1900
+        log_date = xrkdll.get_date_and_time(self.idxf)
+        if not log_date or not log_date.contents:
+            return "01/01/1970"
+        log_day = log_date.contents.day
+        log_month = log_date.contents.month + 1
+        log_year = log_date.contents.year + 1900
         return f'{log_month:02}/{log_day:02}/{log_year:04}'
 
     # returns an integer lap count
