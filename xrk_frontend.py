@@ -24,11 +24,11 @@ def hz_to_pandas_freq(hz):
     if period_seconds >= 1:
         return f"{int(period_seconds)}S"
     elif period_seconds >= 1e-3:
-        return f"{int(period_seconds * 1e3)}L"
+        return f"{int(period_seconds * 1e3)}ms"
     elif period_seconds >= 1e-6:
-        return f"{int(period_seconds * 1e6)}U"
+        return f"{int(period_seconds * 1e6)}us"
     else:
-        return f"{int(period_seconds * 1e9)}N"
+        return f"{int(period_seconds * 1e9)}ns"
 
 ch_names    = ['Time']
 ch_units    = ['s']
@@ -47,7 +47,11 @@ root.withdraw()
 print('Loading Program...')
 
 # Open a file dialog to select the XRK file
-file_path = filedialog.askopenfilename(filetypes=[("XRK files", "*.xrk")])
+file_path = filedialog.askopenfilename(filetypes=[
+    ("XRK files", "*.xrk"),
+    ("XRZ files", "*.xrz"),
+    ("DRK files", "*.drk"),
+])
 aimlog = XRK(file_path)
 
 track       = XRK.track_name(aimlog)
@@ -134,9 +138,11 @@ with open(outputfile, 'w', newline='') as csvfile:
         ['Range','entire outing','','','End Distance'],
         ['Beacon Markers',beacons_str],
         [],
-        [],
         ch_names,
-        ch_units
+        ch_names,
+        ch_units,
+        [str(x) for x in range(len(ch_names))],
+        []
         ]
     writer.writerows(header)
 

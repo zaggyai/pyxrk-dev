@@ -5,7 +5,7 @@ from tkinter import filedialog
 from time import sleep
 
 # Load the DLL
-xrkdll = ctypes.WinDLL('MatLabXRK-2017-64-ReleaseU.dll')
+xrkdll = ctypes.WinDLL('./MatLabXRK-2017-64-ReleaseU.dll')
 
 # Begin DLL function prototypes
 
